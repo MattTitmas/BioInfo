@@ -64,7 +64,6 @@ def swa(string_one: str, string_two: str, verbose: bool = False,
                 L[i][j] = left
                 backtrace[i][j] = 'L'
 
-    print(max_score, max_locations)
     index = L[m][n]
 
     if verbose:
