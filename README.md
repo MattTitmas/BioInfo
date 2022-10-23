@@ -93,3 +93,32 @@ AA
 BB &
 BB
 ```
+
+### Hirschberg's Algorithm (Hirschberg)
+Calculates the global alignment of two strings, using linear space (With respect to the length of the strings)
+
+Use `-v` for a verbose output.
+#### Input:
+```
+python -m Hirschberg -h
+```
+#### Output:
+```
+usage: Hirschberg.py [-h] -f FIRST -s SECOND [-v]
+
+Find the longest common subsequence of two strings.
+
+options:
+  -h, --help            show this help message and exit
+  -f FIRST, --first FIRST
+                        First string.
+  -s SECOND, --second SECOND
+                        Second string.
+  -v, --verbose         Verbose output.
+```
+#### Example:
+```
+Global Alignment of "XMJYAUZ" and "MZJAWXU":
+XM-JYA--UZ &
+-MZJ-AWXU-
+```
