@@ -88,7 +88,7 @@ def hirschberg(first_string: str, second_string: str, verbose: bool = False, tab
 
 def main(first_string: str, second_string: str, verbose: bool = False):
     global_alignment = hirschberg(first_string, second_string, verbose)
-    print(f'\nGlobal Alignment of "{first_string}" and "{second_string}": \n'
+    print(f'Global Alignment of "{first_string}" and "{second_string}": \n'
           f'{global_alignment[0]} & \n{global_alignment[1]}')
 
 
