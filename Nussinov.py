@@ -3,13 +3,13 @@ import argparse
 # Implementaion of the Nussinov Folding Alogrithm
 # Interactive demo: https://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Nussinov
 
-def couple(pair):
+def couple(a, b):
     """
     Return True if RNA nucleotides are Watson-Crick base pairs
     """
     pairs = {"A": "U", "U": "A", "G": "C", "C": "G"}  # ...or a list of tuples...
-    # check if pair is couplable
-    if pair in pairs.items():
+    # check if pair is a couple
+    if (a, b) in pairs.items():
         return True
 
     return False
@@ -20,7 +20,7 @@ def traceback(L, rna, fold, i, j, verbose=True, tabs: int = 0):
             traceback(L, rna, fold, i + 1, j)
         elif L[i][j] == L[i][j - 1]: # 2nd rule
             traceback(L, rna, fold, i, j - 1)
-        elif L[i][j] == L[i + 1][j - 1] + couple((rna[i], rna[j])): # 3rd rule
+        elif L[i][j] == L[i + 1][j - 1] + couple(rna[i], rna[j]): # 3rd rule
             fold.append((i, j))
             traceback(L, rna, fold, i + 1, j - 1)
         else:
@@ -38,13 +38,6 @@ def nussinov(RNA, minimum_loop_length: int = 0, verbose: bool = False,
              complementary: int = 1, uncomplementary: int = 0):
     L = [[0 for x in range(len(RNA))] for y in range(len(RNA))]
 
-    compliment = {
-        'A': 'U',
-        'U': 'A',
-        'G': 'C',
-        'C': 'G'
-    }
-
     if verbose:
         print('1. Generating the matrix:')
     for diag in range(1, len(RNA)):
@@ -56,7 +49,7 @@ def nussinov(RNA, minimum_loop_length: int = 0, verbose: bool = False,
             if j - i > minimum_loop_length:
                 down = L[i+1][j]
                 left = L[i][j-1]
-                diagonal_complementary = L[i+1][j-1] + (complementary if compliment[RNA[i]] == RNA[j] else uncomplementary)
+                diagonal_complementary = L[i+1][j-1] + (complementary if couple(RNA[i], RNA[j]) else uncomplementary)
 
                 k_max = max([L[i][k] + L[k+1][j] for k in range(i+1, j)], default=-float('inf'))
                 maximum = max(down, left, diagonal_complementary, k_max)
