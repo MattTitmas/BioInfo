@@ -120,8 +120,9 @@ def swa(string_one: str, string_two: str, verbose: bool = False,
     return to_return
 
 
-def main(first_string: str, second_string: str, verbose: bool = False):
-    local_alignment = swa(first_string, second_string, verbose)
+def main(first_string: str, second_string: str, verbose: bool = False,
+         indel: int = -1, mismatch: int = -1, match: int = 1):
+    local_alignment = swa(first_string, second_string, verbose, match, mismatch, indel)
     print(f'Local Alignment of "{first_string}" and "{second_string}":')
     for string_one, string_two in local_alignment:
         print(f'{string_one} & \n{string_two}')
@@ -130,15 +131,21 @@ def main(first_string: str, second_string: str, verbose: bool = False):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Find the longest common subsequence of two strings.')
+    parser = argparse.ArgumentParser(description='Find the optimal local alignment of two strings.')
     parser.add_argument('-f', '--first', required=True, type=str,
                         help='First string.')
     parser.add_argument('-s', '--second', required=True, type=str,
                         help='Second string.')
     parser.add_argument('-v', '--verbose', action='store_true', required=False,
                         help='Verbose output.')
+    parser.add_argument('-id', '--indel', required=False, type=int, default=-1,
+                        help='Penalty for inserting / deleting.')
+    parser.add_argument('-mm', '--mismatch', required=False, type=int, default=-1,
+                        help='Penalty for accepting a mismatch.')
+    parser.add_argument('-m', '--match', required=False, type=int, default=1,
+                        help='Reward for accepting a match.')
     args = parser.parse_args()
 
-    main(args.first, args.second, args.verbose)
+    main(args.first, args.second, args.verbose, args.indel, args.mismatch, args.match)
 
 

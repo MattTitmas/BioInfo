@@ -85,7 +85,8 @@ def nussinov(RNA, minimum_loop_length: int = 0, verbose: bool = False,
 
 
 def main(RNA: str, minimum_loop_length: int, verbose: bool = False):
-    print(nussinov(RNA, minimum_loop_length=minimum_loop_length, verbose=verbose))
+    fold = nussinov(RNA, minimum_loop_length=minimum_loop_length, verbose=verbose)
+    print(f'Optimal fold for {RNA} with a minimum loop length of {minimum_loop_length}:\n\t{fold}')
 
 
 if __name__ == '__main__':
