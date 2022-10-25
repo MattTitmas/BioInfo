@@ -38,7 +38,8 @@ def nwaScore(string_one: str, string_two: str, verbose: bool = False,
     return current
 
 
-def hirschberg(first_string: str, second_string: str, verbose: bool = False, tabs: int = 0):
+def hirschberg(first_string: str, second_string: str, verbose: bool = False, tabs: int = 0,
+               indel: int = -1, mismatch: int = -1, match: int = 1):
     if verbose:
         tab_space = "\t" * tabs
         to_print_second = second_string if len(second_string) != 0 else '_'
@@ -71,8 +72,8 @@ def hirschberg(first_string: str, second_string: str, verbose: bool = False, tab
     first_string_len = len(first_string)
     first_string_mid = first_string_len//2
 
-    scoreL = nwaScore(first_string[:first_string_mid], second_string)
-    scoreR = nwaScore(first_string[first_string_mid:][::-1], second_string[::-1])
+    scoreL = nwaScore(first_string[:first_string_mid], second_string, indel=indel, mismatch=mismatch, match=match)
+    scoreR = nwaScore(first_string[first_string_mid:][::-1], second_string[::-1], indel=indel, mismatch=mismatch, match=match)
 
     sum_of_scores = [i+j for i, j in zip(scoreL, scoreR[::-1])]
     second_string_mid = max(range(len(sum_of_scores)), key=sum_of_scores.__getitem__)
@@ -86,8 +87,10 @@ def hirschberg(first_string: str, second_string: str, verbose: bool = False, tab
     return Z1 + Z2, W1 + W2
 
 
-def main(first_string: str, second_string: str, verbose: bool = False):
-    global_alignment = hirschberg(first_string, second_string, verbose)
+def main(first_string: str, second_string: str, verbose: bool = False,
+         indel: int = -1, mismatch = -1, match: int = 1):
+    global_alignment = hirschberg(first_string, second_string, verbose,
+                                  indel=indel, mismatch=mismatch, match=match)
     print(f'Global Alignment of "{first_string}" and "{second_string}": \n'
           f'{global_alignment[0]} & \n{global_alignment[1]}')
 
@@ -100,8 +103,14 @@ if __name__ == '__main__':
                         help='Second string.')
     parser.add_argument('-v', '--verbose', action='store_true', required=False,
                         help='Verbose output.')
+    parser.add_argument('-id', '--indel', required=False, type=int, default=-1,
+                        help='Penalty for inserting / deleting.')
+    parser.add_argument('-mm', '--mismatch', required=False, type=int, default=-1,
+                        help='Penalty for accepting a mismatch.')
+    parser.add_argument('-m', '--match', required=False, type=int, default=1,
+                        help='Reward for accepting a match.')
     args = parser.parse_args()
 
-    main(args.first, args.second, args.verbose)
+    main(args.first, args.second, args.verbose, args.indel, args.mismatch, args.match)
 
 
