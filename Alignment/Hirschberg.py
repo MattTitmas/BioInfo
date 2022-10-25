@@ -1,6 +1,6 @@
 import argparse
 
-from NWA import nwa
+from Alignment.NWA import nwa
 
 # Implementation of Hirschberg's algorithm
 # Video providing a visual explanation: https://www.youtube.com/watch?v=cPQeJt-2Y1Q&ab_channel=DavidPowell
@@ -96,7 +96,7 @@ def main(first_string: str, second_string: str, verbose: bool = False,
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Find the longest common subsequence of two strings.')
+    parser = argparse.ArgumentParser(description='Find the optimal global alignment of two strings.')
     parser.add_argument('-f', '--first', required=True, type=str,
                         help='First string.')
     parser.add_argument('-s', '--second', required=True, type=str,

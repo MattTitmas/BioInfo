@@ -107,7 +107,7 @@ def main(first_string: str, second_string: str, verbose: bool = False,
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Find the longest common subsequence of two strings.')
+    parser = argparse.ArgumentParser(description='Find the optimal global alignment of two strings.')
     parser.add_argument('-f', '--first', required=True, type=str,
                         help='First string.')
     parser.add_argument('-s', '--second', required=True, type=str,
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--match', required=False, type=int, default=1,
                         help='Reward for accepting a match.')
     parser.add_argument('-od', '--overlap_detection', action='store_true', required=False,
-                        help='Allow for overlap detection')
+                        help='Allow for overlap detection.')
     args = parser.parse_args()
 
     main(args.first, args.second, args.verbose, args.indel, args.mismatch, args.match, args.overlap_detection)
