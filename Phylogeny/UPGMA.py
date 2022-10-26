@@ -18,7 +18,6 @@ def combinations(first: str, second: str) -> List[Tuple]:
 
 
 def UPGMA(distance_matrix: Dict[str, Dict[str, float]]):
-    distance_from_leaves = {i: 0 for i in distance_matrix.keys()}
     distance_copy = {i: {j: v_ for j, v_ in v.items()} for i, v in distance_matrix.items()}
     distances = {key: 0 for key in distance_matrix}
 
