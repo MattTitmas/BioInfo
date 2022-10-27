@@ -46,10 +46,6 @@ def neighbour_joining(distance_matrix: Dict[str, Dict[str, float]]):
         distance_matrix.pop(current_minimum[0])
         distance_matrix.pop(current_minimum[1])
 
-        for key in distance_matrix:
-            print(f'{key}: {distance_matrix[key]}')
-        print('-=-=-=-=-')
-
     keys = list(distance_matrix.keys())
     return {**limb_length, **{keys[0]: {keys[1]: distance_matrix[keys[0]][keys[1]]}}}
 

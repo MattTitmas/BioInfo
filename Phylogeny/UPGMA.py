@@ -6,8 +6,8 @@ from typing import Dict, Tuple, List
 # Implementation of UPGMA
 
 def combinations(first: str, second: str) -> List[Tuple]:
-    first_list = re.findall('[a-z]+', first)
-    second_list = re.findall('[a-z]+', second)
+    first_list = re.findall('[a-zA-Z]+', first)
+    second_list = re.findall('[a-zA-Z]+', second)
 
     to_return = []
     for i in first_list:
@@ -37,6 +37,7 @@ def UPGMA(distance_matrix: Dict[str, Dict[str, float]]):
             if i in current_minimum:
                 continue
             total, length = 0, 0
+            print(new_node_name, i)
             for combination in combinations(new_node_name, i):
                 total += distance_copy[combination[0]][combination[1]]
                 length += 1
@@ -66,7 +67,10 @@ def main(matrix: str = 'default'):
         }
     else:
         distance_matrix = {
-            'a': {'a': 0}
+            'A': {'A': 0, 'B': 2, 'C': 4, 'D': 6},
+            'B': {'A': 2, 'B': 0, 'C': 4, 'D': 6},
+            'C': {'A': 4, 'B': 4, 'C': 0, 'D': 6},
+            'D': {'A': 6, 'B': 6, 'C': 6, 'D': 0}
         }
     print(UPGMA(distance_matrix))
 
@@ -74,4 +78,4 @@ def main(matrix: str = 'default'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Perform UPGMA on a distance matrix.')
     args = parser.parse_args()
-    main()
+    main('s')
