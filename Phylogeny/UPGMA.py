@@ -4,7 +4,6 @@ from typing import Dict, Tuple, List
 
 
 # Implementation of UPGMA
-# Interactive demo: https://www.cs.usfca.edu/~galles/visualization/DPLCS.html
 
 def combinations(first: str, second: str) -> List[Tuple]:
     first_list = re.findall('[a-z]+', first)
