@@ -1,6 +1,6 @@
 from typing import Dict
 
-
+# Implementation of Neighbour Joining
 def neighbour_joining(distance_matrix: Dict[str, Dict[str, float]]):
     limb_length = dict()
     new_node_number = 0
