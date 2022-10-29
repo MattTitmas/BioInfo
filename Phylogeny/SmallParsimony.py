@@ -13,18 +13,6 @@ class ParsimonyTree(BinaryTree):
         super().__init__(value)
         self.minimums = None
 
-    def add_left_child(self, child):
-        if type(child) == 'ParsimonyTree':
-            self.left = child
-        else:
-            self.left = ParsimonyTree(child)
-
-    def add_right_child(self, child):
-        if type(child) == 'ParsimonyTree':
-            self.right = child
-        else:
-            self.right = ParsimonyTree(child)
-
     def backtrack(self, smallest_value_previous, character, previous_choice=None):
         if previous_choice is None:
             self.left.backtrack(smallest_value_previous, character, '')
@@ -91,12 +79,12 @@ def delta(i, k):
 
 def main():
     parsimony_tree = ParsimonyTree('')
-    parsimony_tree.add_left_child('')
-    parsimony_tree.left.add_left_child('ACGTAGGCCT')
-    parsimony_tree.left.add_right_child('ATGTAAGACT')
-    parsimony_tree.add_right_child('')
-    parsimony_tree.right.add_left_child('TCGAGAGCAC')
-    parsimony_tree.right.add_right_child('TCGAAAGCAT')
+    parsimony_tree.add_left_child(ParsimonyTree(''))
+    parsimony_tree.left.add_left_child(ParsimonyTree('ACGTAGGCCT'))
+    parsimony_tree.left.add_right_child(ParsimonyTree('ATGTAAGACT'))
+    parsimony_tree.add_right_child(ParsimonyTree(''))
+    parsimony_tree.right.add_left_child(ParsimonyTree('TCGAGAGCAC'))
+    parsimony_tree.right.add_right_child(ParsimonyTree('TCGAAAGCAT'))
 
     # perform small parsimony on the tree, changing the value of all nodes to the optimal value
     parsimony_tree.small_parsimony()

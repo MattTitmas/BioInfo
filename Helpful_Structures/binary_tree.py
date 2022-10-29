@@ -9,6 +9,12 @@ class BinaryTree:
         self.left = None
         self.right = None
 
+    def add_left_child(self, child):
+        self.left = child
+
+    def add_right_child(self, child):
+        self.right = child
+
     def display(self):
         """Returns list of strings, width, height, and horizontal coordinate of the root."""
         # No child.
