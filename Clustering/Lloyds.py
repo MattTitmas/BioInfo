@@ -1,4 +1,5 @@
 import random
+import argparse
 from typing import List, Tuple
 
 import numpy as np
@@ -6,7 +7,15 @@ from sklearn.datasets import make_blobs
 import matplotlib.pyplot as plt
 
 
-def k_means(points: np.ndarray, no_of_clusters: int):
+def coords(s):
+    try:
+        x, y = map(float, s.split(','))
+        return x, y
+    except:
+        raise argparse.ArgumentTypeError("Coordinates must be x,y")
+
+
+def k_means(points: np.ndarray, no_of_clusters: int, verbose: bool = False):
     centroids = points[np.random.randint(points.shape[0], size=no_of_clusters)]
     distances = np.zeros([points.shape[0], no_of_clusters], dtype=np.float64)
 
@@ -30,10 +39,13 @@ def k_means(points: np.ndarray, no_of_clusters: int):
     return centroids, classes
 
 
-def main():
-    points, y = make_blobs(centers=[(0, 5), (5, 0), (0, 0), (5, 5)], n_samples=1000,
+def main(centers: Tuple[Tuple[float, float]] = ((0, 5), (5, 0), (0, 0), (5, 5)),
+         number_of_clusters: int = 4,
+         verbose: bool = False):
+    print()
+    points, y = make_blobs(centers=list(centers), n_samples=1000,
                            cluster_std=0.5, random_state=1)
-    centroids, classes = k_means(points, 4)
+    centroids, classes = k_means(points, number_of_clusters, verbose=verbose)
 
     fig, ax = plt.subplots(figsize=(4, 4))
     ax.scatter(points[:, 0], points[:, 1], alpha=0.5)
@@ -45,4 +57,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description="Perform LLoyd's algorithm.")
+    parser.add_argument('-c', '--centers', type=coords, nargs='+', required=True,
+                        help='Center of clusters.')
+    parser.add_argument('-n', '--number', type=int, required=True,
+                        help='Number of clusters.')
+    parser.add_argument('-v', '--verbose', action='store_true', required=False,
+                        help='Verbose output.')
+    args = parser.parse_args()
+    main(centers=args.centers, number_of_clusters=args.number, verbose=args.verbose)
