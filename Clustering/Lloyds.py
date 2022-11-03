@@ -1,6 +1,7 @@
 import random
 import argparse
 from typing import List, Tuple
+from functools import partial
 
 import numpy as np
 from sklearn.datasets import make_blobs
@@ -14,29 +15,25 @@ def coords(s):
     except:
         raise argparse.ArgumentTypeError("Coordinates must be x,y")
 
+def compute_label(centroids, x):
+    return np.argmin(np.sqrt(np.sum((centroids - x)**2, axis=1)))
 
 def k_means(points: np.ndarray, no_of_clusters: int, verbose: bool = False):
-    centroids = points[np.random.randint(points.shape[0], size=no_of_clusters)]
+    centroids = points[np.random.choice(len(points), no_of_clusters, replace=False)]
     distances = np.zeros([points.shape[0], no_of_clusters], dtype=np.float64)
 
-    previous_distance = -1
-    breaking = False
-    while True:
-        distance_score = 0
+    prev_label, labels = None, np.zeros(len(points))
+    iteration = 0
+    while not np.all(labels == prev_label):
+        if verbose:
+            print(f'Centroid positions at iteration {iteration}:\n {centroids}')
+        iteration += 1
 
-        for count, centroid in enumerate(centroids):
-            distances[:, count] = np.linalg.norm(points - centroid, axis=1)
-        classes = np.argmin(distances, axis=1)
-        if breaking:
-            break
-        for c in range(no_of_clusters):
-            centroids[c] = np.mean(points[classes == c], 0)
-            print(np.sum(points[classes == c]))
-            distance_score += np.sum(points[classes == c])
-        if abs(previous_distance - distance_score) < 0.0001:
-            breaking = True
-        previous_distance = distance_score
-    return centroids, classes
+        prev_label = labels
+        partial_function = partial(compute_label, centroids)
+        labels = np.apply_along_axis(partial_function, 1, points)
+        centroids = np.array([np.mean(points[labels == k], axis=0) for k in range(no_of_clusters)])
+    return centroids, labels
 
 
 def main(centers: Tuple[Tuple[float, float]] = ((0, 5), (5, 0), (0, 0), (5, 5)),
