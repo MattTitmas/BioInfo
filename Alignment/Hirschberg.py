@@ -2,6 +2,7 @@ import argparse
 
 from Alignment.NWA import nwa
 
+
 # Implementation of Hirschberg's algorithm
 # Video providing a visual explanation: https://www.youtube.com/watch?v=cPQeJt-2Y1Q&ab_channel=DavidPowell
 
@@ -28,9 +29,9 @@ def nwaScore(string_one: str, string_two: str, verbose: bool = False,
     for i in range(1, m + 1):
         next[0] = -i
         for j in range(1, n + 1):
-            diagonal = current[j-1] + (match if string_two[j - 1] == string_one[i - 1] else mismatch)
+            diagonal = current[j - 1] + (match if string_two[j - 1] == string_one[i - 1] else mismatch)
             up = current[j] + indel
-            left = next[j-1] + indel
+            left = next[j - 1] + indel
             next[j] = max(diagonal, up, left)
         current = next
         next = [0 for i in range(n + 1)]
@@ -69,13 +70,14 @@ def hirschberg(first_string: str, second_string: str, verbose: bool = False, tab
             print(f'{tab_space}Returning: {Z}, {W}')
         return Z, W
     first_string_len = len(first_string)
-    first_string_mid = first_string_len//2
+    first_string_mid = first_string_len // 2
 
     scoreL = nwaScore(first_string[:first_string_mid], second_string, indel=indel, mismatch=mismatch, match=match)
-    scoreR = nwaScore(first_string[first_string_mid:][::-1], second_string[::-1], indel=indel, mismatch=mismatch, match=match)
+    scoreR = nwaScore(first_string[first_string_mid:][::-1], second_string[::-1], indel=indel, mismatch=mismatch,
+                      match=match)
     # Reverse as we work backwards from the second half
 
-    sum_of_scores = [i+j for i, j in zip(scoreL, scoreR[::-1])]
+    sum_of_scores = [i + j for i, j in zip(scoreL, scoreR[::-1])]
     second_string_mid = max(range(len(sum_of_scores)), key=sum_of_scores.__getitem__)
 
     Z1, W1 = hirschberg(first_string[:first_string_mid], second_string[:second_string_mid], verbose, tabs + 1)
@@ -88,7 +90,7 @@ def hirschberg(first_string: str, second_string: str, verbose: bool = False, tab
 
 
 def main(first_string: str, second_string: str, verbose: bool = False,
-         indel: int = -1, mismatch = -1, match: int = 1):
+         indel: int = -1, mismatch=-1, match: int = 1):
     global_alignment = hirschberg(first_string, second_string, verbose,
                                   indel=indel, mismatch=mismatch, match=match)
     print(f'Global Alignment of "{first_string}" and "{second_string}": \n'
@@ -112,5 +114,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.first, args.second, args.verbose, args.indel, args.mismatch, args.match)
-
-
