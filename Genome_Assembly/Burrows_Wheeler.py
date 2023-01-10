@@ -20,8 +20,6 @@ def burrows_wheeler_transform(string: str, verbose: bool = False) -> str:
             print(f'\t{" ".join(i)}')
         print()
 
-
-
     # Take the last column
     return ''.join(map(lambda x: x[-1], burrows_wheeler_matrix))
 
@@ -94,14 +92,13 @@ def RLE(string: str) -> str:
     return ''.join(sentence)
 
 
-
 def main(string: str, verbose: bool = False):
     encoded_string = burrows_wheeler_transform_suffix_array(string, verbose)
     compressed = RLE(encoded_string)
     decoded_string = inverse_burrows_wheeler(encoded_string, verbose)
 
     print(f'The BWT of {string} is:\n\t{encoded_string}.\nThis, when encoded with RLE is:\n\t{compressed}')
-    print(f'It saves {round(100*(len(RLE(string)) - len(compressed))/len(RLE(string)),2)}% space.')
+    print(f'It saves {round(100 * (len(RLE(string)) - len(compressed)) / len(RLE(string)), 2)}% space.')
     print(f'The deocded string is:\n\t{decoded_string}')
 
 
