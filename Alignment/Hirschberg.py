@@ -4,7 +4,6 @@ from Alignment.NWA import nwa
 
 # Implementation of Hirschberg's algorithm
 # Video providing a visual explanation: https://www.youtube.com/watch?v=cPQeJt-2Y1Q&ab_channel=DavidPowell
-# TODO: Why the random reverses?
 
 
 def nwaScore(string_one: str, string_two: str, verbose: bool = False,
@@ -74,6 +73,7 @@ def hirschberg(first_string: str, second_string: str, verbose: bool = False, tab
 
     scoreL = nwaScore(first_string[:first_string_mid], second_string, indel=indel, mismatch=mismatch, match=match)
     scoreR = nwaScore(first_string[first_string_mid:][::-1], second_string[::-1], indel=indel, mismatch=mismatch, match=match)
+    # Reverse as we work backwards from the second half
 
     sum_of_scores = [i+j for i, j in zip(scoreL, scoreR[::-1])]
     second_string_mid = max(range(len(sum_of_scores)), key=sum_of_scores.__getitem__)
