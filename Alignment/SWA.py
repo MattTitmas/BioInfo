@@ -1,7 +1,7 @@
 import argparse
 
 # Dynamic programming implementation of Smith-Waterman Alignment
-# Interactive demo: https://bioboot.github.io/bimm143_W20/class-material/nw/
+# Interactive demo: https://observablehq.com/@manzt/smith-waterman-algorithm
 
 
 def swa(string_one: str, string_two: str, verbose: bool = False,
@@ -44,24 +44,21 @@ def swa(string_one: str, string_two: str, verbose: bool = False,
             up = L[i-1][j] + indel
             left = L[i][j-1] + indel
 
-            new_max = max(diagonal, up, left)
+            new_max = max(diagonal, up, left, 0)
             if new_max > max_score:
                 max_score = new_max
                 max_locations = [(i, j)]
             elif new_max == max_score:
                 max_locations.append((i, j))
 
-            if diagonal <= 0 and up <= 0 and left <= 0:
-                L[i][j] = 0
+            L[i][j] = new_max
+            if new_max == 0:
                 backtrace[i][j] = 'E'
             elif diagonal >= left and diagonal >= up:
-                L[i][j] = diagonal
                 backtrace[i][j] = 'D'
             elif up >= diagonal and up >= left:
-                L[i][j] = up
                 backtrace[i][j] = 'U'
             else:
-                L[i][j] = left
                 backtrace[i][j] = 'L'
 
     index = L[m][n]
@@ -91,22 +88,22 @@ def swa(string_one: str, string_two: str, verbose: bool = False,
         if verbose:
             print(f'\tStarting from ({i}, {j})')
 
-        while i > 1 or j > 1:
+        while i > 0 or j > 0:
             current = backtrace[i-1][j-1]
             done = False
             if current == 'D':
-                i -= 1
-                j -= 1
                 to_return_one = string_one[i-1] + to_return_one
                 to_return_two = string_two[j-1] + to_return_two
-            elif current == 'L':
+                i -= 1
                 j -= 1
+            elif current == 'L':
                 to_return_one = '-' + to_return_one
                 to_return_two = string_two[j-1] + to_return_two
+                j -= 1
             elif current == 'U':
-                i -= 1
                 to_return_one = string_one[i-1] + to_return_one
                 to_return_two = '-' + to_return_two
+                i -= 1
             else:
                 to_return_one = string_one[i-1] + to_return_one
                 to_return_two = string_two[j-1] + to_return_two
