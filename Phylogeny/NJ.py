@@ -1,10 +1,17 @@
+import argparse
 from typing import Dict
 
+
 # Implementation of Neighbour Joining
-def neighbour_joining(distance_matrix: Dict[str, Dict[str, float]]):
+def neighbour_joining(distance_matrix: Dict[str, Dict[str, float]], verbose: bool = False):
     limb_length = dict()
     new_node_number = 0
     while len(distance_matrix) > 2:
+        if verbose:
+            print(f'Iteration: {new_node_number + 1}')
+            print('\t\t' + '\t'.join(key for key in distance_matrix))
+        for key, value in distance_matrix.items():
+            print('\t' + key + '\t' + '\t'.join([str(distance) for distance in value.values()]))
         total_distance = {i: sum(v.values()) for i, v in distance_matrix.items()}
 
         distance_star = {i: {j: ((len(total_distance) - 2) * distance_matrix[i][j])
@@ -50,7 +57,7 @@ def neighbour_joining(distance_matrix: Dict[str, Dict[str, float]]):
     return {**limb_length, **{keys[0]: {keys[1]: distance_matrix[keys[0]][keys[1]]}}}
 
 
-def main():
+def main(verbose):
     additive_matrix = {
         'a': {'a': 0, 'b': 5, 'c': 9, 'd': 9, 'e': 8},
         'b': {'a': 5, 'b': 0, 'c': 10, 'd': 10, 'e': 9},
@@ -58,8 +65,12 @@ def main():
         'd': {'a': 9, 'b': 10, 'c': 8, 'd': 0, 'e': 3},
         'e': {'a': 8, 'b': 9, 'c': 7, 'd': 3, 'e': 0}
     }
-    print(neighbour_joining(additive_matrix))
+    print(neighbour_joining(additive_matrix, verbose))
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser('Perform neighbour-joining')
+    parser.add_argument('-v', '--verbose', action='store_true', required=False,
+                        help='Verbose output.')
+    args = parser.parse_args()
+    main(args)
