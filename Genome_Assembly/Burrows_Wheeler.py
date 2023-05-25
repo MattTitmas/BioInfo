@@ -103,11 +103,14 @@ def RLE(string: str) -> str:
             if current_count != 1 and current_count != 2:
                 sentence.append(str(current_count))
             sentence.append(c1)
+            if current_count == 2:
+                sentence.append(c2)
             current_count = 0
     return ''.join(sentence)
 
 
 def main(string: str, verbose: bool = False):
+    string = string[:-1] if string.endswith('$') else string
     encoded_string = burrows_wheeler_transform_suffix_array(string, verbose)
     compressed = RLE(encoded_string)
     print(f'The BWT of {string} is:\n\t{encoded_string}.\nThis, when encoded with RLE is:\n\t{compressed}')
