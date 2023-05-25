@@ -1,64 +1,111 @@
-from typing import List, Dict
+import numpy as np
+
+# Not actually sure this works at all, use with lots of caution!
+# Will eventually (hopefully) test and fix before exams!
 
 
-def viterbi(observations: List[str],
-            states: List[str],
-            initial_prob: Dict[str, float],
-            transition_matrix: Dict[str, Dict[str, float]],
-            emission_matrix: Dict[str, Dict[str, float]],
-            given_observations: List[str]) -> List[str]:
+def _prob_sequence(V, A, B, start) -> float:
+    if len(V) == 1:
+        return B[start][V[0]]
+    probability = 0
+    for i in range(A.shape[0]):
+        probability += _prob_sequence(V[1:], A, B, i) * A[start][i]
+    probability *= B[start][V[0]]
+    return probability
 
-    t_one = [[0.0 for i in range(len(given_observations))] for j in range(len(states))]
-    t_two = [[0 for i in range(len(given_observations))] for j in range(len(states))]
 
-    for count, state in enumerate(states):
-        t_one[count][0] = initial_prob[state] * emission_matrix[state][given_observations[0]]
+def prob_sequence(V, A, B, Pi) -> float:
+    probability = 0
+    for i in range(len(Pi)):
+        probability += _prob_sequence(V, A, B, i) * Pi[i]
+    return probability
 
-    for j, observation in enumerate(given_observations):
-        if j == 0:
-            continue
-        for i, state in enumerate(states):
-            values = [t_one[count][j-1] * transition_matrix[k][state] * emission_matrix[state][observation]
-                      for count, k in enumerate(states)]
-            t_one[i][j] = max(values)
-            t_two[i][j] = max(range(len(values)), key=values.__getitem__)
 
-    z = [0 for i in range(len(given_observations))]
-    X = ['' for i in range(len(given_observations))]
+def viterbi(y, A, B, Pi=None):
+    # Cardinality of the state space
+    K = A.shape[0]
+    # Initialize the priors with default (uniform dist) if not given by caller
+    Pi = Pi if Pi is not None else np.full(K, 1 / K)
+    T = len(y)
+    T1 = np.empty((K, T), 'd')
+    T2 = np.empty((K, T), 'B')
 
-    values = [t_one[count][len(given_observations)-1] for count, k in enumerate(states)]
-    z[len(given_observations)-1] = max(range(len(values)), key=values.__getitem__)
-    X[len(given_observations)-1] = states[z[len(given_observations)-1]]
+    # Initilaize the tracking tables from first observation
+    T1[:, 0] = Pi * B[:, y[0]]
+    T2[:, 0] = 0
 
-    for j in range(len(given_observations)-1, 0, -1):
-        z[j-1] = t_two[z[j]][j]
-        X[j-1] = states[z[j-1]]
+    # Iterate throught the observations updating the tracking tables
+    for i in range(1, T):
+        T1[:, i] = np.max(T1[:, i - 1] * A.T * B[np.newaxis, :, y[i]].T, 1)
+        T2[:, i] = np.argmax(T1[:, i - 1] * A.T, 1)
 
-    return ''.join(X)
+    # Build the output, optimal model trajectory
+    x = np.empty(T, 'B')
+    x[-1] = np.argmax(T1[:, T - 1])
+    for i in reversed(range(1, T)):
+        x[i - 1] = T2[x[i], i]
+
+    return x
+
+
+def forward(V, A, B, Pi=None, steps=-1):
+    steps_taken = 0
+    K = A.shape[0]
+    Pi = Pi if Pi is not None else np.full(K, 1 / K)
+    alpha = np.zeros((V.shape[0], A.shape[0]))
+    alpha[0, :] = Pi * B[:, V[0]]
+    for t in range(1, V.shape[0]):
+        steps_taken += 1
+        if steps_taken == steps:
+            print(steps_taken)
+            return alpha[steps_taken - 1]
+        for j in range(A.shape[0]):
+            # Matrix Computation Steps
+            #                  ((1x2) . (1x2))      *     (1)
+            #                        (1)            *     (1)
+            alpha[t, j] = alpha[t - 1].dot(A[:, j]) * B[j, V[t]]
+
+    return alpha
+
+
+def translate(observations: str | np.ndarray):
+    if type(observations) == str:
+        mappings = {
+            'A': 0,
+            'T': 1,
+            'C': 2,
+            'G': 3
+        }
+        return np.array([mappings[i] for i in list(observations)])
+    mappings = {
+        0: 'x',
+        1: 'y',
+        2: 'z'
+    }
+    return ''.join([mappings[i] for i in observations])
 
 
 def main():
-    observations = ['A', 'T', 'C', 'G']
-    states = ['x', 'y', 'z']
-    initial_prob = {
-        'x': 0.3,
-        'y': 0.3,
-        'z': 0.4
-    }
-    transition_matrix = {
-        'x': {'x': 0.2, 'y': 0.4, 'z': 0.4},
-        'y': {'x': 0.1, 'y': 0.6, 'z': 0.3},
-        'z': {'x': 0.8, 'y': 0.1, 'z': 0.1}
+    initial_prob = np.array([0.3, 0.3, 0.4])
 
-    }
-    emission_matrix = {
-        'x': {'A': 0.7, 'T': 0.1, 'C': 0.1, 'G': 0.1},
-        'y': {'A': 0.3, 'T': 0.2, 'C': 0.4, 'G': 0.1},
-        'z': {'A': 0.4, 'T': 0.2, 'C': 0.2, 'G': 0.2},
-    }
+    transition_matrix = np.array([
+        [0.2, 0.4, 0.4],
+        [0.1, 0.6, 0.3],
+        [0.8, 0.1, 0.1]
+    ])
+    emission_matrix = np.array([
+        [0.7, 0.1, 0.1, 0.1],
+        [0.3, 0.2, 0.4, 0.1],
+        [0.4, 0.2, 0.2, 0.2]
+    ])
+
     given_observations = 'CCGAAGTG'
-    returned_value = viterbi(observations, states, initial_prob, transition_matrix, emission_matrix, given_observations)
-    print(returned_value)
+    observations = translate(given_observations)
+
+    path = viterbi(observations, transition_matrix, emission_matrix, initial_prob)
+
+    print(forward(observations, transition_matrix, emission_matrix, initial_prob, 3))
+
 
 if __name__ == '__main__':
     main()
