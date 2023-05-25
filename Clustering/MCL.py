@@ -1,15 +1,25 @@
+import argparse
 from typing import Dict, List
 
-import sklearn
-import markov_clustering as mc
-
 import numpy as np
+from sklearn import preprocessing
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
+def show_graph(G: Dict[str, List[str]]):
+    G = [item for sublist in [[(key, val) for val in value] for key, value in G.items()] for item in sublist]
+    graph = nx.Graph()
+    graph.add_edges_from(G)
+    nx.draw_networkx(graph)
+    plt.title('Close to continue')
+    plt.show()
 
 
 def mcl(G: Dict[str, List[str]], e: int = 2, r: int = 2,
         pruning_threshold: float = 0.001):
     # Initialse M
-    M = [[0 for i in range(len(G.keys()))] for i in range(len(G.keys()))]
+    M = [[0 for _ in range(len(G.keys()))] for _ in range(len(G.keys()))]
     for count_one, node_one in enumerate(sorted(G.keys())):
         for count_two, node_two in enumerate(sorted(G.keys())):
             M[count_one][count_two] = 1 if node_two in G[node_one] else 0
@@ -18,14 +28,14 @@ def mcl(G: Dict[str, List[str]], e: int = 2, r: int = 2,
     M = np.asarray(M, dtype=np.float64)
 
     # Values must be in range 0-1, therefore normalise M
-    M = sklearn.preprocessing.normalize(M, norm="l1", axis=0)
+    M = preprocessing.normalize(M, norm="l1", axis=0)
     while True:
         # Expand
         last = M.copy()
         M = np.linalg.matrix_power(M, e)
 
         # Inflate
-        M = sklearn.preprocessing.normalize(np.power(M, r), norm="l1", axis=0)
+        M = preprocessing.normalize(np.power(M, r), norm="l1", axis=0)
 
         # Prune - not necessary but speeds up (Removes all values < {pruning_threshold}
         pruned = M.copy()
@@ -45,7 +55,7 @@ def mcl(G: Dict[str, List[str]], e: int = 2, r: int = 2,
             return clusters
 
 
-def main():
+def main(verbose: bool = False):
     graph = {
         'A': ['B', 'C', 'D'],
         'B': ['A', 'C', 'D', 'E'],
@@ -59,8 +69,29 @@ def main():
         'J': ['I', 'K'],
         'K': ['I', 'J']
     }
-    print(mcl(graph))
+    if verbose:
+        show_graph(graph)
+
+    clusters = mcl(graph)
+
+    new_graph = dict()
+    for cluster in clusters:
+        for node in cluster:
+            for val in graph[node]:
+                if val in cluster:
+                    new_graph[node] = new_graph.get(node, list()) + [val]
+
+    for key, value in new_graph.items():
+        print(f'{key}: {", ".join(value)}')
+
+    if verbose:
+        show_graph(new_graph)
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser('Perform neighbour-joining')
+    parser.add_argument('-v', '--verbose', action='store_true', required=False,
+                        help='Verbose output.')
+    args = parser.parse_args()
+
+    main(args.verbose)
