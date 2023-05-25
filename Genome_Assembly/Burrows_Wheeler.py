@@ -2,7 +2,7 @@ import argparse
 
 
 def burrows_wheeler_transform(string: str, verbose: bool = False) -> str:
-    sentinel_String = (string + '$')
+    sentinel_String = (string + '$') if not string.endswith('$') else string
     # To emulate cycling back to the beginning
     double_sentinel_string = sentinel_String * 2
 
@@ -11,6 +11,9 @@ def burrows_wheeler_transform(string: str, verbose: bool = False) -> str:
         list(double_sentinel_string[i:i + len(string) + 1]) for i in range(len(string) + 1)
     ]
     if verbose:
+        print('############')
+        print('# ENCODING #')
+        print('############')
         print(f'The generated unsorted Burrows-Wheeler matrix is:')
         for i in burrows_wheeler_matrix:
             print(f'\t{" ".join(i)}')
@@ -29,14 +32,17 @@ def burrows_wheeler_transform_suffix_array(string: str, verbose: bool = False) -
     # Generate a stored suffix array but also store the original position before sorting
     suffix_array = [(sentinel_string[i:], i) for i in range(len(sentinel_string))]
     if verbose:
+        print('############')
+        print('# ENCODING #')
+        print('############')
         print(f'The generated unsorted Burrows-Wheeler suffix array is:')
-        for i in suffix_array:
-            print(f'\t{i}')
+        for value, index in suffix_array:
+            print(f'\t{index}:\t{" ".join(list(value))}')
         print()
 
         print(f'The generated sorted Burrows-Wheeler suffix array is:')
-        for i in sorted(suffix_array):
-            print(f'\t{i}')
+        for value, index in sorted(suffix_array):
+            print(f'\t{index}:\t{" ".join(list(value))}')
         print()
 
     suffix_array = sorted(suffix_array)
@@ -64,14 +70,23 @@ def inverse_burrows_wheeler_inefficient(string: str) -> str:
 def inverse_burrows_wheeler(string: str, verbose: bool = False) -> str:
     last_row = [(i, string[:count].count(i)) for count, i in enumerate(string)]
     first_row = sorted(last_row)
+    if verbose:
+        print('############')
+        print('# DECODING #')
+        print('############')
+        print(f'Calculated first and last row of the Burrows-Wheeler Matrix')
+        for (f, ind_f), (s, ind_s) in zip(first_row, last_row):
+            print(f'\t{f}_{ind_f}\t{s}_{ind_s}')
     current, value = '', 0
     index = last_row.index(('$', 0))
     reconstructed_string = ''
     print('Inversing the transformed string')
     while current != '$':
         if verbose:
-            print(f'\tCurrent index is: ({current if current != "" else "$"}, {value})')
+            print(f'\tCurrent index is: {current if current != "" else "$"}_{value}', end='')
         current, value = first_row[index]
+        if verbose:
+            print(f' -> {current if current != "" else "$"}_{value}')
         reconstructed_string += current
         index = last_row.index((current, value))
 
@@ -95,10 +110,10 @@ def RLE(string: str) -> str:
 def main(string: str, verbose: bool = False):
     encoded_string = burrows_wheeler_transform_suffix_array(string, verbose)
     compressed = RLE(encoded_string)
-    decoded_string = inverse_burrows_wheeler(encoded_string, verbose)
-
     print(f'The BWT of {string} is:\n\t{encoded_string}.\nThis, when encoded with RLE is:\n\t{compressed}')
-    print(f'It saves {round(100 * (len(RLE(string)) - len(compressed)) / len(RLE(string)), 2)}% space.')
+    print(f'It saves {round(100 * (len(RLE(string)) - len(compressed)) / len(RLE(string)), 2)}% space.\n')
+
+    decoded_string = inverse_burrows_wheeler(encoded_string, verbose)
     print(f'The deocded string is:\n\t{decoded_string}')
 
 
