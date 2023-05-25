@@ -7,20 +7,24 @@ def couple(a, b):
     """
     Return True if RNA nucleotides are Watson-Crick base pairs
     """
-    pairs = {"A": "U", "U": "A", "G": "C", "C": "G"}  # ...or a list of tuples...
+    pairs = {("A", "U"), ("U", "A"), ("G", "C"), ("C", "G")}  # ...or a list of tuples...
     # check if pair is a couple
-    if (a, b) in pairs.items():
+    if (a, b) in pairs:
         return True
 
     return False
 
 def traceback(L, rna, fold, i, j, verbose=True, tabs: int = 0):
+    print(i, j)
     if i < j:
         if L[i][j] == L[i + 1][j]: # 1st rule
+            print('First rule')
             traceback(L, rna, fold, i + 1, j)
         elif L[i][j] == L[i][j - 1]: # 2nd rule
+            print('Second rule')
             traceback(L, rna, fold, i, j - 1)
         elif L[i][j] == L[i + 1][j - 1] + couple(rna[i], rna[j]): # 3rd rule
+            print('Third rule')
             fold.append((i, j))
             traceback(L, rna, fold, i + 1, j - 1)
         else:
@@ -65,7 +69,7 @@ def nussinov(RNA, minimum_loop_length: int = 0, verbose: bool = False,
         for count, l in enumerate(L):
             print('\t     ',end='')
             for count_inner, i in enumerate(l):
-                if count_inner < count:
+                if count_inner < count - 1:
                     print('  ', end='')
                 else:
                     print(f'{i} ', end='')
