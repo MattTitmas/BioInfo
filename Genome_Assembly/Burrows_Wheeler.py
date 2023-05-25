@@ -117,7 +117,7 @@ def main(string: str, verbose: bool = False):
     print(f'It saves {round(100 * (len(RLE(string)) - len(compressed)) / len(RLE(string)), 2)}% space.\n')
 
     decoded_string = inverse_burrows_wheeler(encoded_string, verbose)
-    print(f'The deocded string is:\n\t{decoded_string}')
+    print(f'The decoded string is:\n\t{decoded_string}')
 
 
 if __name__ == '__main__':
