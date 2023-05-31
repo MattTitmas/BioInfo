@@ -1,5 +1,6 @@
 import argparse
 
+
 # Dynamic programming implementation of Smith-Waterman Alignment
 # Interactive demo: https://observablehq.com/@manzt/smith-waterman-algorithm
 
@@ -23,11 +24,10 @@ def swa(string_one: str, string_two: str, verbose: bool = False,
     L = [[0 for x in range(n + 1)] for x in range(m + 1)]
     backtrace = [[' ' for x in range(n + 1)] for x in range(m + 1)]
 
-    for i in range(m+1):
-        backtrace[i][0] = 'E'
-    for j in range(n+1):
-        backtrace[0][j] = 'E'
-
+    for i in range(m + 1):
+        backtrace[i][0] = '(E)'
+    for j in range(n + 1):
+        backtrace[0][j] = '(E)'
 
     # Following steps build L[m+1][n+1] in bottom up fashion. Note
     # that L[i][j] contains length of LCS of X[0..i-1] and Y[0..j-1]
@@ -40,9 +40,9 @@ def swa(string_one: str, string_two: str, verbose: bool = False,
 
     for i in range(1, m + 1):
         for j in range(1, n + 1):
-            diagonal = L[i-1][j-1] + (match if string_one[i-1] == string_two[j-1] else mismatch)
-            up = L[i-1][j] + indel
-            left = L[i][j-1] + indel
+            diagonal = L[i - 1][j - 1] + (match if string_one[i - 1] == string_two[j - 1] else mismatch)
+            up = L[i - 1][j] + indel
+            left = L[i][j - 1] + indel
 
             new_max = max(diagonal, up, left, 0)
             if new_max > max_score:
@@ -51,31 +51,29 @@ def swa(string_one: str, string_two: str, verbose: bool = False,
             elif new_max == max_score:
                 max_locations.append((i, j))
 
-            L[i][j] = new_max
-            if new_max == 0:
-                backtrace[i][j] = 'E'
-            elif diagonal >= left and diagonal >= up:
-                backtrace[i][j] = 'D'
-            elif up >= diagonal and up >= left:
-                backtrace[i][j] = 'U'
-            else:
-                backtrace[i][j] = 'L'
+            maximal = max(diagonal, left, up, 0)
+            to_add_to_backtrace = []
+            L[i][j] = maximal
+            for score, direction in [(diagonal, 'D'), (up, 'U'), (left, 'L'), (0, 'E')]:
+                if score == maximal:
+                    to_add_to_backtrace.append(direction)
+            backtrace[i][j] = f'({",".join(to_add_to_backtrace)})'
 
     index = L[m][n]
 
     if verbose:
+        tab = '\t'
         print(f'\t       {" ".join([(" " * (len(str(index)))) + i for i in list(string_two)])}')
         print(f'\t{"-" * (n * (len(str(index)) + 2) + 6)}')
         for col, letter in zip(L, list(' ' + string_one)):
             print(f'\t{letter} | {" ".join([(" " * (len(str(index)) + 1 - len(str(i)))) + str(i) for i in col])}')
         print()
 
-        print(f'\t       {" ".join([(" " * (len(str(index)))) + i for i in list(string_two)])}')
-        print(f'\t{"-" * (n * (len(str(index)) + 2) + 6)}')
+        print(f'\t       {tab.join([(" " * (len(str(index)))) + i for i in list(string_two)])}')
+        print(f'\t{"-" * (n * (len(str(index)) + 2) + 20)}')
         for col, letter in zip(backtrace, list(' ' + string_one)):
-            print(f'\t{letter} | {" ".join([(" " * (len(str(index)) + 1 - len(str(i)))) + str(i) for i in col])}')
+            print(f'\t{letter} | {tab.join([(" " * (len(str(index)) + 1 - len(str(i)))) + str(i) for i in col])}')
         print()
-
 
     if verbose:
         print('2. Navigating the graph (backtracking):')
@@ -89,24 +87,24 @@ def swa(string_one: str, string_two: str, verbose: bool = False,
             print(f'\tStarting from ({i}, {j})')
 
         while i > 0 or j > 0:
-            current = backtrace[i-1][j-1]
+            current = backtrace[i - 1][j - 1][1]
             done = False
             if current == 'D':
-                to_return_one = string_one[i-1] + to_return_one
-                to_return_two = string_two[j-1] + to_return_two
+                to_return_one = string_one[i - 1] + to_return_one
+                to_return_two = string_two[j - 1] + to_return_two
                 i -= 1
                 j -= 1
             elif current == 'L':
                 to_return_one = '-' + to_return_one
-                to_return_two = string_two[j-1] + to_return_two
+                to_return_two = string_two[j - 1] + to_return_two
                 j -= 1
             elif current == 'U':
-                to_return_one = string_one[i-1] + to_return_one
+                to_return_one = string_one[i - 1] + to_return_one
                 to_return_two = '-' + to_return_two
                 i -= 1
             else:
-                to_return_one = string_one[i-1] + to_return_one
-                to_return_two = string_two[j-1] + to_return_two
+                to_return_one = string_one[i - 1] + to_return_one
+                to_return_two = string_two[j - 1] + to_return_two
                 to_return.append((to_return_one, to_return_two))
                 done = True
             if verbose:
@@ -123,8 +121,6 @@ def main(first_string: str, second_string: str, verbose: bool = False,
     print(f'Local Alignment of "{first_string}" and "{second_string}":')
     for string_one, string_two in local_alignment:
         print(f'{string_one} & \n{string_two}')
-
-
 
 
 if __name__ == '__main__':
@@ -144,5 +140,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.first, args.second, args.verbose, args.indel, args.mismatch, args.match)
-
-
